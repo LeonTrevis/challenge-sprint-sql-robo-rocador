@@ -36,20 +36,23 @@ CREATE INDEX IF NOT EXISTS idx_leituras_ts     ON leituras_sensores(timestamp);
 
 -- =============================================================================
 -- 2. CARGA DE DADOS
---    Dos CSVs gerados por simular.py em C:/Users/Leona/dados/
+--    CSVs devem estar em: <data_dir>/dados/
+--    Exemplo: C:/Program Files/PostgreSQL/18/data/dados/
+--    Em outra máquina, ajuste o caminho abaixo conforme a instalação.
+--    Ou copie os CSVs de dados/ para o data dir e use esse caminho.
 -- =============================================================================
 
 COPY sessoes_rocagem (id, nome, data_inicio, data_fim, distancia_total_m, duracao_min, area_total_m2)
-    FROM 'C:/Users/Leona/dados/sessoes.csv' WITH (FORMAT CSV, HEADER true);
+    FROM 'C:/Program Files/PostgreSQL/18/data/dados/sessoes.csv' WITH (FORMAT CSV, HEADER true);
 
 COPY leituras_sensores (sessao_id, timestamp, posicao_x_m, altitude_z_m, pitch_rad, dist_us_cm, vibracao_g, desnivel_detected)
-    FROM 'C:/Users/Leona/dados/leituras_sessao1.csv' WITH (FORMAT CSV, HEADER true);
+    FROM 'C:/Program Files/PostgreSQL/18/data/dados/leituras_sessao1.csv' WITH (FORMAT CSV, HEADER true);
 
 COPY leituras_sensores (sessao_id, timestamp, posicao_x_m, altitude_z_m, pitch_rad, dist_us_cm, vibracao_g, desnivel_detected)
-    FROM 'C:/Users/Leona/dados/leituras_sessao2.csv' WITH (FORMAT CSV, HEADER true);
+    FROM 'C:/Program Files/PostgreSQL/18/data/dados/leituras_sessao2.csv' WITH (FORMAT CSV, HEADER true);
 
 COPY leituras_sensores (sessao_id, timestamp, posicao_x_m, altitude_z_m, pitch_rad, dist_us_cm, vibracao_g, desnivel_detected)
-    FROM 'C:/Users/Leona/dados/leituras_sessao3.csv' WITH (FORMAT CSV, HEADER true);
+    FROM 'C:/Program Files/PostgreSQL/18/data/dados/leituras_sessao3.csv' WITH (FORMAT CSV, HEADER true);
 
 -- =============================================================================
 -- 3. CONSULTAS — 5 PERGUNTAS PARA A EMPRESA

@@ -215,37 +215,71 @@ ORDER BY maior_angulo_graus DESC;
 
 ```
 .
-├── README.md           ← este arquivo
-├── banco-rocador.sql   ← criação das tabelas + \copy de carga + 5 consultas
-├── simular.py          ← script Python que gerou os dados simulados
+├── README.md              ← este arquivo
+├── banco-rocador.sql      ← criação das tabelas + COPY de carga + 5 consultas
+├── simular.py             ← script Python que gerou os dados simulados
 ├── dados/
 │   ├── sessoes.csv               ← resumo de 3 sessões
 │   ├── leituras_sessao1.csv      ← 120 leituras (Trecho A)
 │   ├── leituras_sessao2.csv      ← 120 leituras (Trecho B)
 │   └── leituras_sessao3.csv      ← 120 leituras (Trecho C)
-└── entrega.txt         ← nome, RM dos integrantes + link do GitHub
+└── entrega.txt            ← nome, RM dos integrantes + link do GitHub
 ```
 
 ---
 
 ## Como Reproduzir
 
-1. Execute o script de simulação para gerar os CSVs:
+### Preparação (uma vez)
+
+1. Execute o script de simulação para gerar os CSVs em `dados/`:
 
    ```bash
    python simular.py
    ```
 
-2. Importe os dados no PostgreSQL (na mesma pasta do arquivo):
+2. Copie os CSVs para o diretório de dados do PostgreSQL:
 
    ```bash
-   psql -U seu_usuario -d seu_banco -f banco-rocador.sql
+   mkdir "C:/Program Files/PostgreSQL/18/data/dados"
+   copy dados/*.csv "C:/Program Files/PostgreSQL/18/data/dados/"
    ```
 
-   Ou no pgAdmin: abra o Query Tool e use `\i banco-rocador.sql`.
+   Isso é necessário para que o PostgreSQL (servidor) tenha permissão de leitura.
+   Em outra máquina, ajuste o caminho para o data directory da instalação local.
 
-3. Execute as consultas:
+### Importar no PostgreSQL
 
-   ```bash
-   psql -U seu_usuario -d seu_banco -c "SELECT ..."
+**Opção A — Via linha de comando (recomendado):**
+
+```bash
+psql -U postgres -d robo_rocador -f banco-rocador.sql
+```
+
+**Opção B — Via pgAdmin 4:**
+
+1. Abra o Query Tool conectado ao banco `robo_rocador`
+2. Clique em **File → Open File** e selecione `banco-rocador.sql`
+3. Pressione **F5** para executar
+
+### Executar consultas
+
+```bash
+psql -U postgres -d robo_rocador -c "SELECT ..."
+```
+
+Ou no pgAdmin: abra o Query Tool e execute cada SELECT individualmente para ver o **Data Output**.
+
+---
+
+## Adaptação para outra máquina
+
+O `banco-rocador.sql` usa caminhos absolutos para os CSVs. Para usar em outra máquina:
+
+1. Instale o PostgreSQL (mesma versão ou similar)
+2. Crie a pasta `dados/` dentro do data directory:
    ```
+   C:/Program Files/PostgreSQL/<versao>/data/dados/
+   ```
+3. Copie os CSVs de `dados/` para essa pasta
+4. Se necessário, edite os caminhos no `banco-rocador.sql` (procure por `C:/Program Files/PostgreSQL/`)
