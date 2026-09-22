@@ -1,0 +1,4 @@
+id,nome,data_inicio,data_fim,distancia_total_m,duracao_min,area_total_m2,max_pitch_deg,max_altura_m,max_desnivel_m,n_desniveis
+1,Trecho A - Plano,2025-09-15T08:00:00,2025-09-15T08:10:00,297.5,10,74.38,1.87,0.2372,0.0816,4
+2,Trecho B - Irregular,2025-09-15T08:20:00,2025-09-15T08:30:00,238.0,10,59.5,4.96,0.4406,0.1732,15
+3,Trecho C - Alto Desnivel,2025-09-15T08:40:00,2025-09-15T08:50:00,178.5,10,44.62,11.92,0.4458,0.312,23

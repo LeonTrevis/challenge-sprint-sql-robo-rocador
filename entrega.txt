@@ -1,0 +1,17 @@
+============================================================
+ENTREGA — SQL Aplicado ao Challenge — Sprint 3
+============================================================
+
+Nome e RM dos integrantes:
+
+1. Vinicius Gonçalves Carneiro, RM: 561784
+2. Henrique Augusto Cruz, RM: 564586
+3. Leonardo Martins Trevisan, RM: 563752
+4. Guilherme Gama Massela, RM: 563635
+5. Cristiano dos Santos, RM: 566444
+6. Leonardo Eiji Fabian Kowata, RM: 562934
+
+Link do repositório GitHub:
+https://github.com/<usuario>/<repositorio>
+
+============================================================
