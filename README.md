@@ -6,13 +6,13 @@ Este projeto parte do Challenge de inovação em estradas, onde o objetivo é **
 
 Para a Sprint 3, os dados coletados pelos sensores foram organizados em um banco de dados PostgreSQL e consultados via SQL para responder a perguntas relevantes à empresa e à operação do robô.
 
-> Nota: a câmera para navegação autônoma está prevista para implementação futura, mas não está incluída nesta entrega.
+> Nota: a câmera centralizada para navegação autônoma está prevista para implementação futura, mas não está incluída nesta entrega.
 
 ---
 
 ## Estrutura do Banco de Dados
 
-### Tabela `sessoes_rojagem`
+### Tabela `sessoes_rocagem`
 
 Registra cada sessão de operação do robô em um trecho do acostamento.
 
@@ -33,7 +33,7 @@ Cada linha é uma leitura de sensor a cada 5 segundos durante a operação.
 | Coluna               | Tipo          | Descrição                                  |
 |----------------------|---------------|--------------------------------------------|
 | `id`                 | SERIAL PK     | Identificador único da leitura             |
-| `sessao_id`          | INT FK        | Referência à sessão (`sessoes_rojagem.id`) |
+| `sessao_id`          | INT FK        | Referência à sessão (`sessoes_rocagem.id`) |
 | `timestamp`          | TIMESTAMP     | Horário da leitura                         |
 | `posicao_x_m`        | NUMERIC(8,3)  | Distância acumulada percorrida (metros)    |
 | `altitude_z_m`       | NUMERIC(8,4)  | Altitude do robô em relação ao nível base  |
@@ -45,7 +45,7 @@ Cada linha é uma leitura de sensor a cada 5 segundos durante a operação.
 ### Relacionamento
 
 ```
-sessoes_rojagem (1) ──────── (N) leituras_sensores
+sessoes_rocagem (1) ──────── (N) leituras_sensores
      id                         sessao_id
 ```
 
@@ -53,7 +53,7 @@ Uma sessão possui muitas leituras; cada leitura pertence a uma sessão.
 
 ### Dados Utilizados
 
-Os dados foram **simulados** com script Python (`simular.py`) representando três sessões de 10 minutos cada, com leituras a cada 5 segundos (120 leituras/sessão, 360 no total). O terreno foi modelado com variações sinusoidais e transições discretas de nível para representar diferentes perfis de acostamento. As velocidades variam por sessão: 0,5 m/s (plano), 0,4 m/s (irregular) e 0,3 m/s (alto desnível).
+Os dados foram **simulados** com script Python (`simular.py`) representando três sessões de 10 minutos cada, com leituras a cada 5 segundos (120 leituras/sessão, 360 no total). O terreno foi modelado com variações sinusoidais e transições discretas de nível para representar diferentes perfis de acostamento.
 
 | Sessão                   | Perfil do Terreno            | Desníveis |
 |--------------------------|------------------------------|-----------|
@@ -74,7 +74,7 @@ Os dados foram **simulados** com script Python (`simular.py`) representando trê
 ```sql
 SELECT
     s.nome                                          AS sessao,
-    ROUND(MAX(ABS(l.delta_z)), 4)                  AS maior_desnivel_m
+    ROUND(MAX(ABS(l.delta_z))::numeric, 4)         AS maior_desnivel_m
 FROM (
     SELECT
         sessao_id,
@@ -83,7 +83,7 @@ FROM (
         ) AS delta_z
     FROM leituras_sensores
 ) l
-JOIN sessoes_rojagem s ON s.id = l.sessao_id
+JOIN sessoes_rocagem s ON s.id = l.sessao_id
 WHERE l.delta_z IS NOT NULL
 GROUP BY s.id, s.nome
 ORDER BY maior_desnivel_m DESC;
@@ -111,7 +111,7 @@ ORDER BY maior_desnivel_m DESC;
 SELECT
     s.nome                                          AS sessao,
     COUNT(*) FILTER (WHERE l.desnivel_detected)    AS qtd_desniveis
-FROM sessoes_rojagem s
+FROM sessoes_rocagem s
 JOIN leituras_sensores l ON l.sessao_id = s.id
 GROUP BY s.id, s.nome
 ORDER BY qtd_desniveis DESC;
@@ -139,17 +139,17 @@ ORDER BY qtd_desniveis DESC;
 SELECT
     s.nome                                          AS sessao,
     ROUND(s.area_total_m2 / s.duracao_min, 2)     AS area_m2_por_minuto
-FROM sessoes_rojagem s
+FROM sessoes_rocagem s
 ORDER BY area_m2_por_minuto DESC;
 ```
 
 **Resultado:**
 
 | sessao              | area_m2_por_minuto |
-|---------------------|-------------------|
-| Trecho A - Plano    | 7.44              |
-| Trecho B - Irregular| 5.95              |
-| Trecho C - Alto Desnivel| 4.46          |
+|---------------------|--------------------|
+| Trecho A - Plano    | 7.44               |
+| Trecho B - Irregular| 5.95               |
+| Trecho C - Alto Desnivel| 4.46           |
 
 **Interpretação:** A velocidade de operação impacta diretamente a produtividade: o Trecho A (plano, 0,5 m/s) roça 7,44 m²/min; o Trecho C (desnível severo, 0,3 m/s) cai para 4,46 m²/min — uma redução de 40%. Em operação real, terrenos com muitos desníveis exigem redução de velocidade para segurança, reduzindo a produtividade. Esta consulta ajuda a empresa a estimar o tempo necessário para roçar trechos de extensão conhecida em função do perfil de terreno.
 
@@ -166,7 +166,7 @@ SELECT
     s.nome                                          AS sessao,
     ROUND(s.distancia_total_m / 1000.0 / s.duracao_min, 4)
                                                     AS km_por_minuto
-FROM sessoes_rojagem s
+FROM sessoes_rocagem s
 ORDER BY km_por_minuto DESC;
 ```
 
@@ -174,11 +174,11 @@ ORDER BY km_por_minuto DESC;
 
 | sessao              | km_por_minuto |
 |---------------------|---------------|
-| Trecho A - Plano    | 0.0297        |
+| Trecho A - Plano    | 0.0298        |
 | Trecho B - Irregular| 0.0238        |
-| Trecho C - Alto Desnivel| 0.0178    |
+| Trecho C - Alto Desnivel| 0.0179     |
 
-**Interpretação:** O robô manteve 0,0297 km/min (≈ 1,78 km/h) no Trecho A, com redução para 0,0238 km/min e 0,0178 km/min nos trechos com maior irregularidade. A empresa pode usar essas métricas para planejar a frota necessária e estimar o tempo de operação em cada trecho.
+**Interpretação:** O robô não manteve velocidade constante: o Trecho A (plano, 0,5 m/s) percorreu 0,0298 km/min; o Trecho B (irregular, 0,4 m/s) caiu para 0,0238 km/min; o Trecho C (alto desnível, 0,3 m/s) chegou a 0,0179 km/min — uma redução de 40% em relação ao Trecho A. A velocidade de operação impacta diretamente a distância percorrida por unidade de tempo. Em operação real, terrenos com muitos desníveis exigem redução de velocidade para segurança, reduzindo a produtividade. Esta consulta ajuda a empresa a estimar o tempo necessário para percorrer trechos de extensão conhecida em função do perfil de terreno e da velocidade configurada.
 
 ---
 
@@ -191,9 +191,9 @@ ORDER BY km_por_minuto DESC;
 ```sql
 SELECT
     s.nome                                          AS sessao,
-    ROUND(MAX(ABS(l.pitch_rad)) * 180.0 / PI(), 2)
+    ROUND((MAX(ABS(l.pitch_rad)) * 180.0 / PI())::numeric, 2)
                                                     AS maior_angulo_graus
-FROM sessoes_rojagem s
+FROM sessoes_rocagem s
 JOIN leituras_sensores l ON l.sessao_id = s.id
 GROUP BY s.id, s.nome
 ORDER BY maior_angulo_graus DESC;
@@ -207,7 +207,7 @@ ORDER BY maior_angulo_graus DESC;
 | Trecho B - Irregular    | 4.96               |
 | Trecho A - Plano        | 1.87               |
 
-**Interpretação:** O Trecho C exigiu o maior esforço do robô com 11,92° de inclinação, quase 6,4× mais que o Trecho A. Angulações acima de 5° já podem indicar risco de desestabilização em robôs de pequeno porte. A empresa deve considerar que trechos com desnível frequente geram mais stress no equipamento e planejar manutenção mais próxima para robôs que operam nesses trechos.
+**Interpretação:** O Trecho C exigiu o maior esforço do robô com 11,92° de inclinação, cerca de 6,4× mais que o Trecho A. Angulações acima de 5° já podem indicar risco de desestabilização em robôs de pequeno porte. O Trecho B registrou 4,96°, próximo ao limiar de atenção. A empresa deve considerar que trechos com desnível frequente geram mais stress no equipamento e planejar manutenção mais próxima para robôs que operam nesses trechos. Os valores de pitch também correlacionam com os desníveis detectados: onde o terreno é mais irregular, o giroscópio registra maior inclinação.
 
 ---
 
@@ -216,7 +216,7 @@ ORDER BY maior_angulo_graus DESC;
 ```
 .
 ├── README.md           ← este arquivo
-├── banco.sql           ← criação das tabelas + \copy de carga + 5 consultas
+├── banco-rocador.sql   ← criação das tabelas + \copy de carga + 5 consultas
 ├── simular.py          ← script Python que gerou os dados simulados
 ├── dados/
 │   ├── sessoes.csv               ← resumo de 3 sessões
@@ -231,21 +231,21 @@ ORDER BY maior_angulo_graus DESC;
 ## Como Reproduzir
 
 1. Execute o script de simulação para gerar os CSVs:
+
    ```bash
    python simular.py
    ```
 
-2. Importe os dados no PostgreSQL:
+2. Importe os dados no PostgreSQL (na mesma pasta do arquivo):
+
    ```bash
-   psql -U seu_usuario -d seu_banco -f banco.sql
+   psql -U seu_usuario -d seu_banco -f banco-rocador.sql
    ```
 
+   Ou no pgAdmin: abra o Query Tool e use `\i banco-rocador.sql`.
+
 3. Execute as consultas:
+
    ```bash
    psql -U seu_usuario -d seu_banco -c "SELECT ..."
-   ```
-   Ou abra o cliente e rode o arquivo:
-   ```bash
-   psql -U seu_usuario -d seu_banco
-   \i banco.sql
    ```
