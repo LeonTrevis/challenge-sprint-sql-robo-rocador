@@ -6,7 +6,7 @@ Este projeto parte do Challenge de inovação em estradas, onde o objetivo é **
 
 Para a Sprint 3, os dados coletados pelos sensores foram organizados em um banco de dados PostgreSQL e consultados via SQL para responder a perguntas relevantes à empresa e à operação do robô.
 
-> Nota: a centralized câmera para navegação autônoma está prevista para implementação futura, mas não está incluída nesta entrega.
+> Nota: a câmera para navegação autônoma está prevista para implementação futura, mas não está incluída nesta entrega.
 
 ---
 
@@ -53,13 +53,13 @@ Uma sessão possui muitas leituras; cada leitura pertence a uma sessão.
 
 ### Dados Utilizados
 
-Os dados foram **simulados** com script Python (`simular.py`) representando três sessões de 10 minutos cada, a 0,5 m/s, com leituras a cada 5 segundos (120 leituras/sessão, 360 no total). O terreno foi modelado com variações sinusoidais e transições discretas de nível para representar diferentes perfis de acostamento.
+Os dados foram **simulados** com script Python (`simular.py`) representando três sessões de 10 minutos cada, com leituras a cada 5 segundos (120 leituras/sessão, 360 no total). O terreno foi modelado com variações sinusoidais e transições discretas de nível para representar diferentes perfis de acostamento. As velocidades variam por sessão: 0,5 m/s (plano), 0,4 m/s (irregular) e 0,3 m/s (alto desnível).
 
 | Sessão                   | Perfil do Terreno            | Desníveis |
 |--------------------------|------------------------------|-----------|
-| Trecho A - Plano         | Poucas variações             | 3         |
-| Trecho B - Irregular     | Várias transições moderadas  | 16        |
-| Trecho C - Alto Desnível | Transições severas           | 30        |
+| Trecho A - Plano         | Poucas variações             | 4         |
+| Trecho B - Irregular     | Várias transições moderadas  | 15        |
+| Trecho C - Alto Desnível | Transições severas           | 23        |
 
 ---
 
@@ -175,10 +175,10 @@ ORDER BY km_por_minuto DESC;
 | sessao              | km_por_minuto |
 |---------------------|---------------|
 | Trecho A - Plano    | 0.0297        |
-| Trecho B - Irregular| 0.0297        |
-| Trecho C - Alto Desnivel| 0.0297    |
+| Trecho B - Irregular| 0.0238        |
+| Trecho C - Alto Desnivel| 0.0178    |
 
-**Interpretação:** O robô manteve 0,0297 km/min (≈ 1,78 km/h) em todas as sessões. Essa é a velocidade de cruzeiro configurada para operação segura em acostamento. A empresa pode usar esse valor como baseline para calcular o tempo necessário para roçar um trecho de extensão conhecida.
+**Interpretação:** O robô manteve 0,0297 km/min (≈ 1,78 km/h) no Trecho A, com redução para 0,0238 km/min e 0,0178 km/min nos trechos com maior irregularidade. A empresa pode usar essas métricas para planejar a frota necessária e estimar o tempo de operação em cada trecho.
 
 ---
 
@@ -203,11 +203,11 @@ ORDER BY maior_angulo_graus DESC;
 
 | sessao                  | maior_angulo_graus |
 |-------------------------|--------------------|
-| Trecho C - Alto Desnivel| 7.85               |
-| Trecho B - Irregular    | 3.63               |
-| Trecho A - Plano        | 2.38               |
+| Trecho C - Alto Desnivel| 11.92              |
+| Trecho B - Irregular    | 4.96               |
+| Trecho A - Plano        | 1.87               |
 
-**Interpretação:** O Trecho C exigiu o maior esforço do robô com 7,85° de inclinação, quase 3,3× mais que o Trecho A. Angulações acima de 5° já podem indicar risco de desestabilização em robôs de pequeno porte. A empresa deve considerar que trechos com desnível frequente geram mais stress no equipamento e planejar manutenção mais próxima para robôs que operam nesses trechos.
+**Interpretação:** O Trecho C exigiu o maior esforço do robô com 11,92° de inclinação, quase 6,4× mais que o Trecho A. Angulações acima de 5° já podem indicar risco de desestabilização em robôs de pequeno porte. A empresa deve considerar que trechos com desnível frequente geram mais stress no equipamento e planejar manutenção mais próxima para robôs que operam nesses trechos.
 
 ---
 
